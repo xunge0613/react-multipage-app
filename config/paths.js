@@ -48,6 +48,22 @@ const resolveModule = (resolveFn, filePath) => {
   return resolveFn(`${filePath}.js`);
 };
 
+/**
+ * 扫描函数
+ */
+function Scan() {
+  const dirs = fs.readdirSync(resolveApp("src/"));
+  const map = {};
+  dirs.forEach((file) => {
+    const state = fs.statSync(resolveApp("src/" + file));
+    if (state.isDirectory()) {
+      map[file] = resolveApp("src/" + file) + "/index.tsx";
+    }
+  });
+  return map;
+}
+const dirsMap = Scan();
+
 // config after eject: we're in ./config/
 module.exports = {
   dotenv: resolveApp(".env"),
@@ -55,8 +71,6 @@ module.exports = {
   appBuild: resolveApp("build"),
   appPublic: resolveApp("public"),
   appHtml: resolveApp("public/index.html"),
-  appIndexJs: resolveModule(resolveApp, "src/index"), // 默认配置的工程入口文件
-  appTestJs: resolveModule(resolveApp, "src/test"), // 新增入口文件
   appPackageJson: resolveApp("package.json"),
   appSrc: resolveApp("src"),
   appTsConfig: resolveApp("tsconfig.json"),
@@ -66,6 +80,7 @@ module.exports = {
   proxySetup: resolveApp("src/setupProxy.js"),
   appNodeModules: resolveApp("node_modules"),
   publicUrlOrPath,
+  dirsMap, // 扫描 src 目录下的文件夹，记录各个入口文件 src/${xxx}/index.tsx
 };
 
 module.exports.moduleFileExtensions = moduleFileExtensions;
